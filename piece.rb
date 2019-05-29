@@ -1,7 +1,29 @@
 # 
 # 
 # 
+#
+
+
 # 
+# red: 31
+# green: 32
+# yellow: 33
+# blue: 34
+# purple: 35
+# Teal: 36
+# gray: 37
+# red bg: 41 *
+# green bg: 42 *
+# yellow bg: 43
+# blue bg: 44 *
+# purple bg: 45
+# Teal bg: 46
+# gray bg: 47
+# 
+
+def colorize(text, color_code)
+  "\e[#{color_code}m#{text}\e[0m"
+end
 
 ###############################
 class Pawn
@@ -19,6 +41,10 @@ class Pawn
 
   def board_symbol
     "P#{@color[0].downcase}"
+    @color == 'white' ? colorize("Pn", 31) : colorize("Pn", 32)
+#    white_symbol = "\u2659"
+#    black_symbol = "\u265F"
+#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -73,14 +99,20 @@ end  # class Pawn
 class Rook
   attr_accessor :name
   attr_accessor :color
+  attr_accessor :can_castle
 
   def initialize
     @name = 'Rook'
     @color = ''
+    @can_castle = true
   end
 
   def board_symbol
     "R#{@color[0].downcase}"
+    @color == 'white' ? colorize("Rk", 31) : colorize("Rk", 32)
+#    white_symbol = "\u2656"
+#    black_symbol = "\u265C"
+#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -109,16 +141,18 @@ end # class Rook
 class Knight
   attr_accessor :name
   attr_accessor :color
-  attr_accessor :can_castle
   
   def initialize
     @name = 'Knight'
     @color = ''
-    @can_castle = true
   end
 
   def board_symbol
     "N#{@color[0].downcase}"
+    @color == 'white' ? colorize("Nt", 31) : colorize("Nt", 32)
+#    white_symbol = "\u2658"
+#    black_symbol = "\u265E"
+#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -157,6 +191,10 @@ class Bishop
 
   def board_symbol
     "B#{@color[0].downcase}"
+    @color == 'white' ? colorize("Bp", 31) : colorize("Bp", 32)
+#    white_symbol = "\u2657"
+#    black_symbol = "\u265D"
+#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -193,6 +231,10 @@ class Queen
 
   def board_symbol
     "Q#{@color[0].downcase}"
+    @color == 'white' ? colorize("Qn", 31) : colorize("Qn", 32)
+#    white_symbol = "\u2655"
+#    black_symbol = "\u265B"
+#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -228,15 +270,21 @@ class King
   attr_accessor :name
   attr_accessor :color
   attr_accessor :can_castle
+  attr_accessor :check
 
   def initialize
     @name = 'King'
     @color = ''
     @can_castle = true
+    @check = false
   end
 
   def board_symbol
     "K#{@color[0].downcase}"
+    @color == 'white' ? colorize("Kg", 31) : colorize("Kg", 32)
+#    white_symbol = "\u2654"
+#    black_symbol = "\u265A"
+#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
