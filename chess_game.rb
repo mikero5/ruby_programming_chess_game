@@ -162,25 +162,36 @@ class ChessGame
     check = nil
     check_move = nil
     check_piece = nil
+    test_setup
     while !finished
       @board.draw
       puts "#{check[0].color} #{check[0].name} in check! (#{check_move}, By: #{check_piece.color} #{check_piece.name})" if check
       # puts "#{check[0].color} #{check[0].name} in check! (#{check_move})" if check
 
+      #####################################
       # TODO: handle move == load/save game
+      #####################################
       move = @current_player.get_move
+      valid = nil
       invalid_tries = 10
-      while !@board.move_valid?(move)
+      while !(valid = @board.move_valid?(move))
         @board.draw
         puts "Invalid move, try again..."
         invalid_moves_quit if invalid_tries == 0
         invalid_tries -= 1
 
+        #####################################
         # TODO: handle move == load/save game
+        #####################################
         move = @current_player.get_move
       end
 
-      @board.move_piece(move)
+      puts "******* play -- valid: #{valid}"
+      if valid == 'castle'
+        castle(move)
+      else
+        @board.move_piece(move)
+      end
       
       check = @board.find_check
       if check
@@ -198,10 +209,47 @@ class ChessGame
     announce_result(finished)  # (white/black) checkmate, stalemate
   end # def play
 
+  
+  def castle(move)
+    puts "Entering castle function -- move: #{move.inspect}"
+    @board.move_piece(move)
 
-  ##########################
-  # TODO: Implement
-  ##########################
+    # white king-side castle
+    if move == [[4,0],[6,0]]
+      @board.move_piece([[7,0],[5,0]])
+    end
+
+    # white queen-side castle
+    if move == [[4,0],[2,0]]
+     @board.move_piece([[0,0],[3,0]])
+    end
+
+    # black king-side castle
+    if move == [[4,7],[6,7]]
+      @board.move_piece([[7,7],[5,7]])
+    end
+
+    # black queen-side castle
+    if move == [[4,7],[2,7]]
+      @board.move_piece([[0,7],[3,7]])
+    end
+  end
+
+  def test_setup
+    @board.clear
+    board = @board.board
+    black_king = King.new
+    black_king.color = 'black'
+    white_pawn = Pawn.new
+    white_pawn.color = 'white'
+    white_king = King.new
+    white_king.color = 'white'
+    board[5][7] = black_king
+    board[5][6] = white_pawn
+    board[5][4] = white_king
+    @board.set_display_board_from_board
+  end
+
   # returns false | white | black | stalemate
   def determine_finished(check)
     # determine checkmate (only if checked)
@@ -210,50 +258,11 @@ class ChessGame
     end
     
     # determine stalemate
+    return 'stalemate' if stalemate?
 
     false
   end
 
-
-  ###########################################
-  # TODO: move this function to Board class
-  ###########################################
-  # returns [king piece, move] or nil  (move to attack king)
-#  def find_check
-#    white_pieces = @board.white_pieces
-#    black_pieces = @board.black_pieces
-#    white_king = nil
-#    white_pieces.each {|el|
-#      white_king = el if el[0].name == 'King'
-#    }
-#    black_king = nil
-#    black_pieces.each {|el|
-#      black_king = el if el[0].name == 'King'
-#    }
-#
-#    white_king_pos = white_king[1]
-#    black_king_pos = black_king[1]
-#
-#    black_pieces.each {|el|
-#      move = [el[1], white_king_pos]
-#      if @board.move_valid?(move)
-#        white_king[0].can_castle = false
-#        white_king[0].check = true
-#        return [white_king[0], move]
-#      end
-#    }
-#
-#    white_pieces.each {|el|
-#      move = [el[1], black_king_pos]
-#      if @board.move_valid?(move)
-#        black_king[0].can_castle = false
-#        black_king[0].check = true
-#        return [black_king[0], move]
-#      end
-#    }
-#
-#    nil
-#  end
 
   ###############################
   # only call when in check
@@ -393,119 +402,39 @@ class ChessGame
     puts "attacking_piece_pos: #{attacking_piece_pos.inspect}, defending_king_pos: #{defending_king_pos.inspect}"
     puts "current_player: #{@current_player.color}"
     defending_king.raw_move_list(defending_king_pos).each{|pos|
-      if @board.move_valid?([defending_king_pos, pos])
-        puts "can_evade? -- defending king pos: #{defending_king_pos.inspect}, test valid move to: #{pos.inspect}"
-        ################################################
-        # TODO: *** Consider making the king move into check a test within the move_valid? function...
-        ################################################
-        board = Board.new
-        #        board.board = @board.board
-        board.copy(@board)
-        board.move_piece([defending_king_pos, pos])
-        if @current_player == @white_player   # current_player is the attacking player
-          enemy_pieces = board.white_pieces  # enemy from threatened king POV
-        else
-          enemy_pieces = board.black_pieces  # enemy from threatened king POV
-        end
-
-        safe_move = true
-        enemy_pieces.each {|el|
-          if board.move_valid?([el[1], pos])   # using temporary board here (with king's evading move)
-            safe_move = false
-          end
-        }
-        puts "can_evade? -- safe_move = #{safe_move}"
-        return true if safe_move
-      end
+      return true if @board.move_valid?([defending_king_pos, pos]) # move_valid? verifies king not moving into check, etc.
     }
+    
     return false
   end
   
-  ##########################
-  # TODO: implement
-  ##########################
-  def determine_stalemate
+  def stalemate?
+    if @current_player.color == 'white'
+      enemy_pieces = @board.black_pieces
+    else
+      enemy_pieces = @board.white_pieces
+    end
+
+    enemy_pieces.each {|el|
+      piece = el[0]
+      position = el[1]
+      move_list = piece.raw_move_list(position)
+      move_list.each {|new_pos|
+        valid = @board.move_valid?([position, new_pos])
+        return false if valid
+      }
+    }
+    
+    true
   end
   
   def announce_result(result)
-    puts "Winner is: #{result}"
+    if result == 'stalemate'
+      puts "Game Over: Stalemate!"
+    else
+      puts "Game Over: #{result.capitalize} Wins!"
+    end
   end
-  
-#  ##########################
-#  def move_valid?(move)
-#    puts "*** move_valid? checking move: #{move.inspect}"
-#    
-#    # all moves must be on the board
-#    return false if !move[0][0].between?(0,7)
-#    return false if !move[0][1].between?(0,7)
-#    return false if !move[1][0].between?(0,7)
-#    return false if !move[1][1].between?(0,7)
-#
-#    current_player = nil
-#    start_piece = @board.get_piece_at(move[0])
-#    if start_piece.color == 'white'
-#      current_player = @white_player
-#    else
-#      current_player = @black_player
-#    end
-#    
-#    end_piece = @board.get_piece_at(move[1])
-#
-#    # start position must have a piece of player's color
-#    if start_piece == nil
-#      puts "*** move_valid? returning false: start_piece is nil, move: #{move.inspect}"
-#      return false
-#    else
-#      puts "*** move_valid? returning false: start_piece color != player color, move: #{move.inspect}" if start_piece.color != current_player.color
-#      return false if start_piece.color != current_player.color
-#    end
-#
-#    # end may not have a piece of the player's color
-#    if end_piece != nil
-#      puts "*** move_valid? returning false: end_piece is nil, move: #{move.inspect}" if end_piece.color == current_player.color
-#      return false if end_piece.color == current_player.color
-#    end
-#
-#    # start and end positions match piece's movement rules
-#    reachable = start_piece.potentially_reachable?(move[0], move[1])
-#    puts "*** move_valid? returning false: reachable: #{reachable}, move: #{move.inspect}" if !reachable
-#    return false if !reachable
-#
-#    # path from start to end may not be blocked (except for knights)
-#    if start_piece.name != 'Knight'
-#      # path from start to end may not be blocked (except for knights)
-#      valid_path = @board.valid_path?(move)
-#      puts "*** move_valid? returning false: valid_path: #{valid_path}" if !valid_path
-#      return false if !valid_path
-#    end
-#
-#    if start_piece.name == 'Pawn'
-#      if start_piece.attack?(move[0], move[1])
-#        # pawn attack
-#        puts "*** move_valid? returning false: pawn attack end_piece == nil: #{end_piece == nil}" if end_piece == nil
-#        return false if end_piece == nil
-#        puts "*** move_valid? returning false: pawn attack color == end piece color: #{start_piece.color == end_piece.color}" if start_piece.color == end_piece.color
-#        return false if start_piece.color == end_piece.color
-#      else
-#        # check that pawn destination empty
-#        # (probably unnecessary check since valid_path check above should cover this)
-#        puts "*** move_valid? returning false: pawn end piece != nil: #{end_piece != nil}" if end_piece != nil
-#        return false if end_piece != nil
-#      end
-#    end
-#    
-#    ### TODO
-#    # - special cases:
-#    #   -- castling
-#    #   -- en passant
-#    #   -- promotion of pawns
-#    # - can't move into check
-#    # - when in check, move must remove check
-#
-#    puts "*** move_valid? returning true"
-#    puts ""
-#    true
-#  end # def move_valid?(move)
 
   ##########################
   def next_player

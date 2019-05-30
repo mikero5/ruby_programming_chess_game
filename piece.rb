@@ -21,6 +21,9 @@
 # gray bg: 47
 # 
 
+WHITE_CODE = 32
+BLACK_CODE = 31
+
 def colorize(text, color_code)
   "\e[#{color_code}m#{text}\e[0m"
 end
@@ -39,9 +42,17 @@ class Pawn
 #    @first_move = true
   end
 
+  def clone
+    piece = Pawn.new
+    piece.name = @name
+    piece.color = @color
+    piece.move_count = @move_count
+    piece
+  end
+  
   def board_symbol
     "P#{@color[0].downcase}"
-    @color == 'white' ? colorize("Pn", 31) : colorize("Pn", 32)
+    @color == 'white' ? colorize("Pn", WHITE_CODE) : colorize("Pn", BLACK_CODE)
 #    white_symbol = "\u2659"
 #    black_symbol = "\u265F"
 #    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
@@ -107,9 +118,17 @@ class Rook
     @can_castle = true
   end
 
+  def clone
+    piece = Rook.new
+    piece.name = @name
+    piece.color = @color
+    piece.can_castle = @can_castle
+    piece
+  end
+
   def board_symbol
     "R#{@color[0].downcase}"
-    @color == 'white' ? colorize("Rk", 31) : colorize("Rk", 32)
+    @color == 'white' ? colorize("Rk", WHITE_CODE) : colorize("Rk", BLACK_CODE)
 #    white_symbol = "\u2656"
 #    black_symbol = "\u265C"
 #    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
@@ -147,9 +166,16 @@ class Knight
     @color = ''
   end
 
+  def clone
+    piece = Knight.new
+    piece.name = @name
+    piece.color = @color
+    piece
+  end
+
   def board_symbol
     "N#{@color[0].downcase}"
-    @color == 'white' ? colorize("Nt", 31) : colorize("Nt", 32)
+    @color == 'white' ? colorize("Nt", WHITE_CODE) : colorize("Nt", BLACK_CODE)
 #    white_symbol = "\u2658"
 #    black_symbol = "\u265E"
 #    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
@@ -189,9 +215,16 @@ class Bishop
     @color = ''
   end
 
+  def clone
+    piece = Bishop.new
+    piece.name = @name
+    piece.color = @color
+    piece
+  end
+
   def board_symbol
     "B#{@color[0].downcase}"
-    @color == 'white' ? colorize("Bp", 31) : colorize("Bp", 32)
+    @color == 'white' ? colorize("Bp", WHITE_CODE) : colorize("Bp", BLACK_CODE)
 #    white_symbol = "\u2657"
 #    black_symbol = "\u265D"
 #    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
@@ -229,9 +262,16 @@ class Queen
     @color = ''
   end
 
+  def clone
+    piece = Queen.new
+    piece.name = @name
+    piece.color = @color
+    piece
+  end
+
   def board_symbol
     "Q#{@color[0].downcase}"
-    @color == 'white' ? colorize("Qn", 31) : colorize("Qn", 32)
+    @color == 'white' ? colorize("Qn", WHITE_CODE) : colorize("Qn", BLACK_CODE)
 #    white_symbol = "\u2655"
 #    black_symbol = "\u265B"
 #    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
@@ -279,9 +319,18 @@ class King
     @check = false
   end
 
+  def clone
+    piece = King.new
+    piece.name = @name
+    piece.color = @color
+    piece.can_castle = @can_castle
+    piece.check = @check
+    piece
+  end
+
   def board_symbol
     "K#{@color[0].downcase}"
-    @color == 'white' ? colorize("Kg", 31) : colorize("Kg", 32)
+    @color == 'white' ? colorize("Kg", WHITE_CODE) : colorize("Kg", BLACK_CODE)
 #    white_symbol = "\u2654"
 #    black_symbol = "\u265A"
 #    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
@@ -300,7 +349,9 @@ class King
     move_list.push([x+1, y-1])
     move_list.push([x+1, y])
     move_list.push([x+1, y+1])
-
+    move_list.push([x+2, y])  # castle
+    move_list.push([x-2, y])  # castle
+    
     move_list
   end
   

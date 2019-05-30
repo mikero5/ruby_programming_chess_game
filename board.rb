@@ -119,10 +119,26 @@ class Board
     set_display_board_from_board
   end # initialize
 
+  def clear
+    (0..7).each {|i|
+      (0..7).each {|j|
+        @board[i][j] = nil
+      }
+    }
+    set_display_board_from_board
+  end
+  
   def copy(rhs)
     (0..7).each {|i|
       (0..7).each {|j|
-        @board[i][j] = rhs.board[i][j]
+        copy_piece = nil
+        piece = rhs.board[i][j]
+        if piece != nil
+          copy_piece = piece.clone
+          @board[i][j] = copy_piece
+        else
+          @board[i][j] = rhs.board[i][j]
+        end
       }
     }
 
@@ -136,14 +152,6 @@ class Board
     @moves = rhs.moves
     @non_pawn_move_count = rhs.non_pawn_move_count
     @piece_display = rhs.piece_display
-
-#    @board = Array.new(8) { Array.new(8) }
-#    @display_board = Array.new(8) { Array.new(8) {'~~'} }
-#    @captured = []
-#    @moves = []
-#    @non_pawn_move_count = 0
-#    @piece_display
-
   end
   
   def draw
@@ -218,6 +226,9 @@ class Board
     }
   end # move_piece(move)
 
+  ##########################################
+  # TODO: Implement
+  ##########################################
   def handle_pawn_promotion(move)
     valid = false
     piece = nil
@@ -367,12 +378,15 @@ class Board
 
     # path from start to end may not be blocked (except for knights)
     if start_piece.name != 'Knight'
-      # path from start to end may not be blocked (except for knights)
       valid_path = valid_path?(move)
       puts "*** move_valid? returning false: valid_path: #{valid_path}" if !valid_path
       return false if !valid_path
     end
 
+    #############################################
+    # TODO: add en-passant in the following block
+    #############################################
+    # special pawn tests
     if start_piece.name == 'Pawn'
       if start_piece.attack?(move[0], move[1])
         # pawn attack
@@ -389,15 +403,90 @@ class Board
     end
 
     
-    
-    ### TODO
-    # - special cases:
-    #   -- castling
-    #   -- en passant
-    #   -- promotion of pawns
-    # - can't move into check
-    # - when in check, move must remove check
+    # ensure king not moving into check
+    if start_piece.name == 'King'
+      board = Board.new
+      board.copy(self)
+      board.move_piece(move)
+      if current_player_color == 'white'
+        enemy_pieces = board.black_pieces  # enemy from threatened king POV
+      else
+        enemy_pieces = board.white_pieces  # enemy from threatened king POV
+      end
 
+      safe_move = true
+      enemy_pieces.each {|el|
+        if board.move_valid?([el[1], move[1]])   # using temporary board here (with king's move destination)
+          safe_move = false
+        end
+      }
+      return false if !safe_move
+    end
+
+    # ensure checked king's player moves out of check
+    current_player_king = nil
+    if current_player_color == 'white'
+      current_player_king = white_king
+    else
+      current_player_king = black_king
+    end
+    if current_player_king[0].check
+      board = Board.new
+      board.copy(self)
+      board.move_piece(move)
+      if current_player_color == 'white'
+        enemy_pieces = board.black_pieces  # enemy from threatened king POV
+      else
+        enemy_pieces = board.white_pieces  # enemy from threatened king POV
+      end
+      safe_move = true
+      enemy_pieces.each {|el|
+        if board.move_valid?([el[1], current_player_king[1]])   # using temporary board here (with king's move destination)
+          safe_move = false
+        end
+      }
+      return false if !safe_move
+    end
+
+    # check white king-side castle
+    if move == [[4,0],[6,0]] && start_piece.name == 'King' && start_piece.color == 'white'
+      puts "white king-side castle"
+      rook = get_piece_at([7,0])
+      puts "rook is nil: #{rook == nil}, rook can castle: #{rook.can_castle}"
+      puts "start piece can castle: #{start_piece.can_castle}"
+      if rook != nil && rook.can_castle
+        return 'castle' if start_piece.can_castle
+      end
+    end
+
+    # check white queen-side castle
+    if move == [[4,0],[2,0]] && start_piece.name == 'King' && start_piece.color == 'white'
+      rook = get_piece_at([0,0])
+      if rook != nil && rook.can_castle
+        return 'castle' if start_piece.can_castle
+      end
+    end
+
+    # check black king-side castle
+    if move == [[4,7],[6,7]] && start_piece.name == 'King' && start_piece.color == 'black'
+      rook = get_piece_at([7,7])
+      if rook != nil && rook.can_castle
+        return 'castle' if start_piece.can_castle
+      end
+    end
+
+    # check black queen-side castle
+    if move == [[4,7],[2,7]] && start_piece.name == 'King' && start_piece.color == 'black'
+      rook = get_piece_at([0,7])
+      if rook != nil && rook.can_castle
+        return 'castle' if start_piece.can_castle
+      end
+    end
+
+    if start_piece.name == 'King'
+      return false if position_distance(move) > 1
+    end
+    
     puts "*** move_valid? returning true"
     puts ""
     true
@@ -452,6 +541,16 @@ class Board
     }
     pieces
   end # white_pieces
+
+  def white_king
+    king = nil
+    @board.each_with_index {|col, i|
+      col.each_with_index {|piece, j|
+        king = [piece, [i, j]] if piece != nil && piece.color == 'white' && piece.name == 'King'
+      }
+    }
+    king
+  end
   
   # returns [ [piece, [coords] ], ... ]
   def black_pieces
@@ -463,7 +562,16 @@ class Board
     }
     pieces
   end # black_pieces
-  
+
+  def black_king
+    king = nil
+    @board.each_with_index {|col, i|
+      col.each_with_index {|piece, j|
+        king = [piece, [i, j]] if piece != nil && piece.color == 'black' && piece.name == 'King'
+      }
+    }
+    king
+  end
   
   def position_distance(move)
     start_x = move[0][0]
@@ -476,7 +584,7 @@ class Board
   end # position_distance(move)
   
 
-  private
+#  private
   def set_piece_display_from_display_board
     @piece_display = ["  8  |    #{@display_board[0][7] ? @display_board[0][7] : '~~'}    |... #{@display_board[1][7] ? @display_board[1][7] : '~~'} ...|    #{@display_board[2][7] ? @display_board[2][7] : '~~'}    |... #{@display_board[3][7] ? @display_board[3][7] : '~~'} ...|    #{@display_board[4][7] ? @display_board[4][7] : '~~'}    |... #{@display_board[5][7] ? @display_board[5][7] : '~~'} ...|    #{@display_board[6][7] ? @display_board[6][7] : '~~'}    |... #{@display_board[7][7] ? @display_board[7][7] : '~~'} ...|",
                       "  7  |... #{@display_board[0][6] ? @display_board[0][6] : '~~'} ...|    #{@display_board[1][6] ? @display_board[1][6] : '~~'}    |... #{@display_board[2][6] ? @display_board[2][6] : '~~'} ...|    #{@display_board[3][6] ? @display_board[3][6] : '~~'}    |... #{@display_board[4][6] ? @display_board[4][6] : '~~'} ...|    #{@display_board[5][6] ? @display_board[5][6] : '~~'}    |... #{@display_board[6][6] ? @display_board[6][6] : '~~'} ...|    #{@display_board[7][6] ? @display_board[7][6] : '~~'}    | ",
@@ -492,6 +600,7 @@ class Board
   def set_display_board_from_board
     (0..7).each {|col|
       (0..7).each {|row|
+        @display_board[col][row] = '~~'
         piece = @board[col][row]
         @display_board[col][row] = piece.board_symbol if piece != nil
       }

@@ -10,7 +10,9 @@ class Player
     @color = color.downcase
   end
 
+  ###########################################
   # TODO: add prompt option to save/load game
+  ###########################################
   def get_move
     done = false
     while !done
