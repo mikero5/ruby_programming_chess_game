@@ -101,6 +101,7 @@ class Pawn
 
   def attack?(start_pos, end_pos)
     move_list = attack_move_list(start_pos)
+    puts "pawn attack moves: #{move_list.inspect}, end_pos: #{end_pos.inspect}"
     return move_list.include?(end_pos)
   end
 

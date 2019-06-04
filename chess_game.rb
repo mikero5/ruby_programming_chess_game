@@ -142,6 +142,7 @@
 # 
 # 
 
+require 'yaml'
 require_relative 'player.rb'
 require_relative 'board.rb'
 
@@ -162,16 +163,38 @@ class ChessGame
     check = nil
     check_move = nil
     check_piece = nil
-    test_setup
+    #    test_setup
+    print "Load saved game? [Y/N]: "
+    load = gets.chomp.downcase
+    load_game if load == 'y'
+    game_saved = false
     while !finished
       @board.draw
+      puts "Game Saved!" if game_saved
       puts "#{check[0].color} #{check[0].name} in check! (#{check_move}, By: #{check_piece.color} #{check_piece.name})" if check
       # puts "#{check[0].color} #{check[0].name} in check! (#{check_move})" if check
 
-      #####################################
-      # TODO: handle move == load/save game
-      #####################################
+      ##########################################
+      # decide on using find_check here (for loaded game)
+      ##########################################
+      check = @board.find_check
+      if check
+        move_element = MoveHistoryElement.new(check[1], @board.get_piece_at(check[1][0]))
+        check_move = move_element.move_to_chess_coords
+        check_piece = move_element.piece
+        puts "#{check[0].color} #{check[0].name} in check! (#{check_move}, By: #{check_piece.color} #{check_piece.name})"
+      end
+
+      game_saved = false
       move = @current_player.get_move
+      puts "move: #{move}"
+      if move.class == String && move.downcase == 's'
+        save_game
+        game_saved = true
+        next
+      end
+      exit if move.class == String && move.downcase == 'q'
+
       valid = nil
       invalid_tries = 10
       while !(valid = @board.move_valid?(move))
@@ -180,15 +203,25 @@ class ChessGame
         invalid_moves_quit if invalid_tries == 0
         invalid_tries -= 1
 
-        #####################################
-        # TODO: handle move == load/save game
-        #####################################
+        game_saved = false
         move = @current_player.get_move
+        puts "move: #{move}"
+        if move.class == String && move.downcase == 's'
+          save_game
+          game_saved = true
+          valid = 'next'
+          next
+        end
+        exit if move.class == String && move.downcase == 'q'
       end
+
+      next if valid == 'next'
 
       puts "******* play -- valid: #{valid}"
       if valid == 'castle'
         castle(move)
+      elsif valid == 'en_passant'
+        en_passant(move)
       else
         @board.move_piece(move)
       end
@@ -233,6 +266,11 @@ class ChessGame
     if move == [[4,7],[2,7]]
       @board.move_piece([[0,7],[3,7]])
     end
+  end
+
+  def en_passant(move)
+    @board.board[move[1][0]][move[0][1]] = nil
+    @board.move_piece(move)
   end
 
   def test_setup
@@ -447,18 +485,42 @@ class ChessGame
     exit
   end
 
-  ##########################
-  # TODO: implement
-  ##########################
   def save_game
-    # save board
-    # save current_player
+    filename = "./data/chess_" + Time.now.strftime('%d_%b_%Y-%H%M') + ".gam"
+    file = File.new(filename, "w")
+    YAML.dump(@board, file)
+    if @current_player.color == 'white'
+      YAML.dump('white', file)
+    else
+      YAML.dump('black', file)
+    end
+    file.close
   end
 
-  ##########################
-  # TODO: implement
-  ##########################
   def load_game
+    puts 'Load Game function called... (unimplemented)'
+    index = 0
+    file_list = Dir.glob("./data/*.gam")
+    game_list = Dir.glob("./data/*.gam").map {|file|
+      index += 1
+      file = "#{index.to_s[0..2]}.  #{file}"
+    }
+
+    game_list.each {|entry|
+      puts entry
+    }
+    print "Enter number of game to load: "
+    game_number = STDIN.gets.to_i - 1
+    puts ""
+    puts "selected game file: #{file_list[game_number]}"
+    filename = file_list[game_number]
+    data_array = YAML.load_stream(File.open(filename))
+    @board = data_array[0]
+    if data_array[1] == 'white'
+      @current_player = @white_player
+    else
+      @current_player = @black_player
+    end
   end
   
 end # class ChessGame

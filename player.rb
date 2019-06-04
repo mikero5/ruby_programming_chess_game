@@ -10,18 +10,21 @@ class Player
     @color = color.downcase
   end
 
-  ###########################################
-  # TODO: add prompt option to save/load game
-  ###########################################
   def get_move
     done = false
     while !done
-      print "#{@color} player move (e.g.   b1,c3): "
-      move = gets.chomp.split(',')
-      done = true if move[0][0].between?('a','h') &&
-                     move[0][1].between?('1','8') &&
-                     move[1][0].between?('a','h') &&
-                     move[1][1].between?('1','8')
+      print "#{@color} player move (e.g.   b1,c3) [q: quits, s: save]: "
+      input = gets.chomp.downcase
+      return input if input == 's' || input == 'q'
+      move = input.split(',')
+      if move.class == Array && move.length == 2 && move[0].class == String && move[1].class == String
+        done = true if move[0][0].between?('a','h') &&
+                       move[0][1].between?('1','8') &&
+                       move[1][0].between?('a','h') &&
+                       move[1][1].between?('1','8')
+      else
+        puts "Invalid move.class encountered... #{move.class}, length: #{move.length}, move[0].class: #{move[0].class}, move[1].class: #{move[1].class}"
+      end
       puts "Invalid input, please enter move as 'start position,end position' (with no spaces) using chess notation, try again..." unless done
     end
     array_move = convert_move_to_array_indices(move)
