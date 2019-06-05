@@ -3,60 +3,7 @@
 # 
 # 
 # 
-# y = mx + b    // m: slope, b: y-intercept
 # 
-# ------------------------------------------
-# movement:
-#      [allowed x-delta, allowed y-delta]
-#      
-#      E.g.  Rook:   [ [0, (-8..8)], [(-8..8), 0] ]
-#            Knight: [ [1, 2], [1, -2], [2, 1], [2, -1], [-1, 2], [-1, -2], [-2, 1], [-2, -1]  ]
-#            Bishop: [ [(-8..8), (-8..8)] ]
-#            Queen:  [ [0, (-8..8)], [(-8..8), 0], [(-8..8), (-8..8)] ]
-#            King:   [ [0, (-1..1)], [(-1..1), 0], [(-1..1), (-1..1)] ]
-#            Pawn:   [ [0, 1], [0, 2]{1st move}, [-1, 1]{attack}, [1, 1]{attack} ]
-# - basic movement list
-# - attack movement list
-# - 1st movement list
-# - blockable (true/false)
-# 
-# 
-# 
-# alternative:
-# 
-# - cross
-# - diagonal
-# - pawn
-# - knight
-# 
-# * Pawn   : [pawn]
-# 
-# * Knight : [knight]
-# 
-# * Rook   : [cross, 8]
-# 
-# * Bishop : [diagonal, 8]
-# 
-# * Queen  : [[cross, 8], [diagonal, 8]]
-# 
-# * King   : [[cross, 1], [diagonal, 1]]
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# ------------------------------------------
-# 
-# position:  [x, y]   // x: 0-7, y: 0-7
-# 
-# ------------------------------------------
-# 
-# move:
-#    [start_position, end_position]
-# 
-# ------------------------------------------
 # 
 # board: 
 # 
@@ -113,28 +60,6 @@
 #          a          b          c          d          e          f          g          h
 # 
 # 
-# ------------------------------------------
-# 
-# piece:
-# - player {w or b (white or black)}
-# - symbol (P, R, N, B, Q, K)
-# - movement: (see movement data type above)
-# - position: (see position above)
-# 
-# 
-# ------------------------------------------
-# move validation:
-# - start and end must be on the board
-# - start position must have a piece of player's color
-# - end may not have a piece of the player's color
-# - path from start to end may not be blocked (except for knights)
-# - special cases:
-#   -- castling
-#   -- en passant
-#   -- promotion of pawns
-# 
-# 
-# 
 # 
 # 
 # 
@@ -168,24 +93,29 @@ class ChessGame
     load = gets.chomp.downcase
     load_game if load == 'y'
     game_saved = false
+    check_message = nil
     while !finished
       @board.draw
       puts "Game Saved!" if game_saved
-      puts "#{check[0].color} #{check[0].name} in check! (#{check_move}, By: #{check_piece.color} #{check_piece.name})" if check
-      # puts "#{check[0].color} #{check[0].name} in check! (#{check_move})" if check
 
-      ##########################################
+      ###################################################
       # decide on using find_check here (for loaded game)
-      ##########################################
-      check = @board.find_check
-      if check
-        move_element = MoveHistoryElement.new(check[1], @board.get_piece_at(check[1][0]))
-        check_move = move_element.move_to_chess_coords
-        check_piece = move_element.piece
-        puts "#{check[0].color} #{check[0].name} in check! (#{check_move}, By: #{check_piece.color} #{check_piece.name})"
+      ###################################################
+      if load == 'y'
+        load = nil
+        check = @board.find_check
+        if check
+          move_element = MoveHistoryElement.new(check[1], @board.get_piece_at(check[1][0]))
+          check_move = move_element.move_to_chess_coords
+          check_piece = move_element.piece
+          check_message = "#{check[0].color} #{check[0].name} in check! (#{check_move}, By: #{check_piece.color} #{check_piece.name})"
+        else
+          check_message = nil
+        end
       end
 
       game_saved = false
+      puts check_message if check_message
       move = @current_player.get_move
       puts "move: #{move}"
       if move.class == String && move.downcase == 's'
@@ -204,6 +134,7 @@ class ChessGame
         invalid_tries -= 1
 
         game_saved = false
+        puts check_message if check_message
         move = @current_player.get_move
         puts "move: #{move}"
         if move.class == String && move.downcase == 's'
@@ -231,9 +162,10 @@ class ChessGame
         move_element = MoveHistoryElement.new(check[1], @board.get_piece_at(check[1][0]))
         check_move = move_element.move_to_chess_coords
         check_piece = move_element.piece
-        puts "#{check[0].color} #{check[0].name} in check! (#{check_move}, By: #{check_piece.color} #{check_piece.name})"
+        check_message = "#{check[0].color} #{check[0].name} in check! (#{check_move}, By: #{check_piece.color} #{check_piece.name})"
+      else
+        check_message = nil
       end
-#      puts "#{check[0].color} #{check[0].name} in check! (#{check[1].inspect})" if check
       if !(finished = determine_finished(check))
         next_player
       end
@@ -244,7 +176,6 @@ class ChessGame
 
   
   def castle(move)
-    puts "Entering castle function -- move: #{move.inspect}"
     @board.move_piece(move)
 
     # white king-side castle
@@ -346,9 +277,6 @@ class ChessGame
       direction = 'diagonal'
     end
 
-    puts "attack direction: #{direction}"
-
-
     case direction
     when 'horizontal'
       y = move[0][1]
@@ -359,13 +287,11 @@ class ChessGame
           if el[0].name != 'King'
             coords = el[1]
             move = [coords, [x, y]]
-            puts "can_block? move test: #{move.inspect}, valid: #{@board.move_valid?(move)}"
             valid = @board.move_valid?(move)
             return true if valid
           end
         }
       }
-      puts "start_x: #{start_x}, end_x: #{end_x}"
     when 'vertical'
       x = move[0][0]
       start_y = [move[0][1], move[1][1]].min
@@ -375,13 +301,11 @@ class ChessGame
           if el[0].name != 'King'
             coords = el[1]
             move = [coords, [x, y]]
-            puts "can_block? move test: #{move.inspect}, valid: #{@board.move_valid?(move)}"
             valid = @board.move_valid?(move)
             return true if valid
           end
         }
       }
-      puts "start_y: #{start_y}, end_y: #{end_y}"
     when 'diagonal'
       x_inc = move[0][0] < move[1][0] ? 1 : -1
       y_inc = move[0][1] < move[1][1] ? 1 : -1
@@ -399,7 +323,6 @@ class ChessGame
           if el[0].name != 'King'
             coords = el[1]
             move = [coords, [x, y]]
-            puts "can_block? move test: #{move.inspect}, valid: #{@board.move_valid?(move)}"
             valid = @board.move_valid?(move)
             return true if valid
           end
@@ -437,8 +360,6 @@ class ChessGame
     attacking_piece_pos = move_history_element.move[0]
     defending_king_pos = move_history_element.move[1]
     defending_king = move_history_element.piece
-    puts "attacking_piece_pos: #{attacking_piece_pos.inspect}, defending_king_pos: #{defending_king_pos.inspect}"
-    puts "current_player: #{@current_player.color}"
     defending_king.raw_move_list(defending_king_pos).each{|pos|
       return true if @board.move_valid?([defending_king_pos, pos]) # move_valid? verifies king not moving into check, etc.
     }
@@ -498,7 +419,6 @@ class ChessGame
   end
 
   def load_game
-    puts 'Load Game function called... (unimplemented)'
     index = 0
     file_list = Dir.glob("./data/*.gam")
     game_list = Dir.glob("./data/*.gam").map {|file|
@@ -506,6 +426,12 @@ class ChessGame
       file = "#{index.to_s[0..2]}.  #{file}"
     }
 
+    if game_list.empty?
+      print "No games found to load, hit return..."
+      gets
+      return
+    end
+    
     game_list.each {|entry|
       puts entry
     }

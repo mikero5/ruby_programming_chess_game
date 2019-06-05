@@ -4,22 +4,6 @@
 #
 
 
-# 
-# red: 31
-# green: 32
-# yellow: 33
-# blue: 34
-# purple: 35
-# Teal: 36
-# gray: 37
-# red bg: 41 *
-# green bg: 42 *
-# yellow bg: 43
-# blue bg: 44 *
-# purple bg: 45
-# Teal bg: 46
-# gray bg: 47
-# 
 
 WHITE_CODE = 32
 BLACK_CODE = 31
@@ -33,13 +17,11 @@ class Pawn
   attr_accessor :name
   attr_accessor :color
   attr_accessor :move_count
-#  attr_accessor :first_move
 
   def initialize
     @name = 'Pawn'
     @color = ''
     @move_count = 0
-#    @first_move = true
   end
 
   def clone
@@ -53,9 +35,6 @@ class Pawn
   def board_symbol
     "P#{@color[0].downcase}"
     @color == 'white' ? colorize("Pn", WHITE_CODE) : colorize("Pn", BLACK_CODE)
-#    white_symbol = "\u2659"
-#    black_symbol = "\u265F"
-#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -101,7 +80,6 @@ class Pawn
 
   def attack?(start_pos, end_pos)
     move_list = attack_move_list(start_pos)
-    puts "pawn attack moves: #{move_list.inspect}, end_pos: #{end_pos.inspect}"
     return move_list.include?(end_pos)
   end
 
@@ -130,9 +108,6 @@ class Rook
   def board_symbol
     "R#{@color[0].downcase}"
     @color == 'white' ? colorize("Rk", WHITE_CODE) : colorize("Rk", BLACK_CODE)
-#    white_symbol = "\u2656"
-#    black_symbol = "\u265C"
-#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -177,9 +152,6 @@ class Knight
   def board_symbol
     "N#{@color[0].downcase}"
     @color == 'white' ? colorize("Nt", WHITE_CODE) : colorize("Nt", BLACK_CODE)
-#    white_symbol = "\u2658"
-#    black_symbol = "\u265E"
-#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -226,9 +198,6 @@ class Bishop
   def board_symbol
     "B#{@color[0].downcase}"
     @color == 'white' ? colorize("Bp", WHITE_CODE) : colorize("Bp", BLACK_CODE)
-#    white_symbol = "\u2657"
-#    black_symbol = "\u265D"
-#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -273,9 +242,6 @@ class Queen
   def board_symbol
     "Q#{@color[0].downcase}"
     @color == 'white' ? colorize("Qn", WHITE_CODE) : colorize("Qn", BLACK_CODE)
-#    white_symbol = "\u2655"
-#    black_symbol = "\u265B"
-#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)
@@ -332,9 +298,6 @@ class King
   def board_symbol
     "K#{@color[0].downcase}"
     @color == 'white' ? colorize("Kg", WHITE_CODE) : colorize("Kg", BLACK_CODE)
-#    white_symbol = "\u2654"
-#    black_symbol = "\u265A"
-#    @color == 'white' ? " #{black_symbol.encode('utf-8')}" : " #{white_symbol.encode('utf-8')}"
   end
 
   def raw_move_list(position)

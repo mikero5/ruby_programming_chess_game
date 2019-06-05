@@ -14,6 +14,12 @@ class MoveHistoryElement
     @piece = piece
   end
 
+  def clone
+    piece = @piece.clone
+    move = [[@move[0][0], @move[0][1]], [@move[1][0], @move[1][1]]]
+    MoveHistoryElement.new(move, piece)
+  end
+
   def to_string
     "#{@piece.color}: #{move_to_chess_coords.inspect}, #{@piece.name} "
   end
@@ -31,12 +37,12 @@ end # class MoveHistoryElement
 
 class Board
   attr_accessor :board
-  attr_reader :non_pawn_move_count
-  attr_reader :display_board
-  attr_reader :captured
-  attr_reader :moves
-  attr_reader :non_pawn_move_count
-  attr_reader :piece_display
+  attr_accessor :non_pawn_move_count
+  attr_accessor :display_board
+  attr_accessor :captured
+  attr_accessor :moves
+  attr_accessor :non_pawn_move_count
+  attr_accessor :piece_display
   
   def initialize
     @board = Array.new(8) { Array.new(8) }
@@ -149,13 +155,51 @@ class Board
       }
     }
 
-    @captured = rhs.captured
+    @moves.clear
+    rhs.moves.each {|el|
+      @moves.push(el.clone)
+    }
+    
     @moves = rhs.moves
+    @captured = rhs.captured
     @non_pawn_move_count = rhs.non_pawn_move_count
     @piece_display = rhs.piece_display
   end
   
+  def clone
+    board = Board.new
+    board.clear
+    (0..7).each {|i|
+      (0..7).each {|j|
+        copy_piece = nil
+        piece = @board[i][j]
+        if piece != nil
+          copy_piece = piece.clone
+          board.board[i][j] = copy_piece
+        else
+          board.board[i][j] = @board[i][j]
+        end
+      }
+    }
+
+    (0..7).each {|i|
+      (0..7).each {|j|
+        board.display_board[i][j] = @display_board[i][j]
+      }
+    }
+
+    @moves.each {|el|
+      board.moves.push(el.clone)
+    }
+    
+    board.captured = @captured
+    board.non_pawn_move_count = @non_pawn_move_count
+    board.piece_display = @piece_display
+    board
+  end
+  
   def draw
+    show_move_list
     set_piece_display_from_display_board
     line = '     +----------+----------+----------+----------+----------+----------+----------+----------+'
     wb_line = '     |          |..........|          |..........|          |..........|          |..........|'
@@ -217,13 +261,21 @@ class Board
     set_display_board_from_board
 
     # show game move list
+#    puts ""
+#    puts "Move List:"
+#    @moves.each_with_index {|el, i|
+#      puts "#{i+1}. #{el.to_string}"
+#    }
+  end # move_piece(move)
+
+  def show_move_list
     puts ""
     puts "Move List:"
     @moves.each_with_index {|el, i|
       puts "#{i+1}. #{el.to_string}"
     }
-  end # move_piece(move)
-
+  end
+  
   def handle_pawn_promotion(move)
     color = get_piece_at(move[1]).color
     valid = false
@@ -271,16 +323,10 @@ class Board
     piece = @board[move[0][0]][move[0][1]]
     start_pos = move[0]
     end_pos = move[1]
-#    move_list = piece.raw_move_list(start_pos)
-
-#    puts "valid_path? start_pos: #{start_pos.inspect}"
     
     dist = position_distance(move)
     return true if dist == 1
 
-#    puts "valid_path? checking move: #{move.inspect}"
-#    tail_pos = end_pos
-    
     direction = nil
     if start_pos[1] == end_pos[1]
       direction = 'horizontal'
@@ -290,44 +336,34 @@ class Board
       direction = 'diagonal'
     end
 
-#    puts "valid_path? direction: #{direction}"
-    
     case direction
     when 'horizontal'
       y = start_pos[1]
       start_x = [start_pos[0], end_pos[0]].min + 1
       end_x = [start_pos[0], end_pos[0]].max - 1
-#      puts "valid_path? (horizontal) start_y: #{start_x}, end_y: #{end_x}, y: #{y}"
       (start_x..end_x).each {|x|
         piece = @board[x][y]
-#        puts "valid_path? piece at [#{x}][#{y}] is not nil" if piece != nil
         return false if piece != nil
       }
     when 'vertical'
       x = start_pos[0]
       start_y = [start_pos[1], end_pos[1]].min + 1
       end_y = [start_pos[1], end_pos[1]].max - 1
-#      puts "valid_path? (vertical) start_y: #{start_y}, end_y: #{end_y}, x: #{x}"
       (start_y..end_y).each {|y|
         piece = @board[x][y]
-#        puts "valid_path? piece at [#{x}][#{y}] is not nil" if piece != nil
         return false if piece != nil
       }
     when 'diagonal'
       x_inc = start_pos[0] < end_pos[0] ? 1 : -1
       y_inc = start_pos[1] < end_pos[1] ? 1 : -1
-#      puts "valid_path? (diagonal) x_inc: #{x_inc}"
-#      puts "valid_path? (diagonal) y_inc: #{y_inc}"
       start_x = start_pos[0] + (1 * x_inc)
       start_y = start_pos[1] + (1 * y_inc)
       end_x = end_pos[0] - (1 * x_inc)
       end_y = end_pos[1] - (1 * y_inc)
       current_pos = [start_x, start_y]
-#      puts "valid_path? (diagonal) current_pos: #{current_pos.inspect}, end_pos: #{end_pos.inspect}"
       while current_pos != end_pos
         x = current_pos[0]
         y = current_pos[1]
-#        puts "valid_path? piece at [#{x}][#{y}] is not nil" if @board[x][y] != nil
         return false if @board[x][y] != nil
         current_pos[0] += x_inc
         current_pos[1] += y_inc
@@ -336,14 +372,11 @@ class Board
       puts "Fatal Error: valid_path? -- impossible direction encountered: #{direction}"
     end
     
-#    puts "valid_path? returning true"
     true
   end # valid_path?(move)
 
   ##########################
   def move_valid?(move)
-#    puts "*** move_valid? checking move: #{move.inspect}"
-    
     # all moves must be on the board
     return false if !move[0][0].between?(0,7)
     return false if !move[0][1].between?(0,7)
@@ -352,7 +385,9 @@ class Board
 
     current_player_color = nil
     start_piece = get_piece_at(move[0])
-#    puts "move_valid? -- start_piece == nil: #{start_piece == nil}, for pos: #{move[0]}"
+
+    return false if start_piece == nil
+    
     if start_piece.color == 'white'
       current_player_color = 'white'
     else
@@ -361,43 +396,34 @@ class Board
     
     end_piece = get_piece_at(move[1])
 
-    # start position must have a piece of player's color
     if start_piece == nil
-#      puts "*** move_valid? returning false: start_piece is nil, move: #{move.inspect}"
       return false
     else
-#      puts "*** move_valid? returning false: start_piece color != player color, move: #{move.inspect}" if start_piece.color != current_player_color
       return false if start_piece.color != current_player_color
     end
 
     # end may not have a piece of the player's color
     if end_piece != nil
-#      puts "*** move_valid? returning false: end_piece is nil, move: #{move.inspect}" if end_piece.color == current_player_color
       return false if end_piece.color == current_player_color
     end
 
     # start and end positions match piece's movement rules
     reachable = start_piece.potentially_reachable?(move[0], move[1])
-#    puts "*** move_valid? returning false: reachable: #{reachable}, move: #{move.inspect}" if !reachable
     return false if !reachable
 
     # path from start to end may not be blocked (except for knights)
     if start_piece.name != 'Knight'
       valid_path = valid_path?(move)
-#      puts "*** move_valid? returning false: valid_path: #{valid_path}" if !valid_path
       return false if !valid_path
     end
 
     # special pawn tests
     if start_piece.name == 'Pawn'
       if start_piece.attack?(move[0], move[1])
-        puts "**** pawn attack move: #{move.inspect}"
         # pawn attack
-#        if end_piece == nil
           # en-passant
           if (move[1][1] == 2 || move[1][1] == 5) && end_piece == nil
             prev_move = moves[-1]
-            puts "last move: #{prev_move.move}"
             if prev_move.piece.name == 'Pawn'               &&   # enemy prev move was a pawn
                prev_move.piece.move_count == 1              &&   # enemy pawn's 1st move
                prev_move.move[1][0] == move[1][0]           &&   # enemy's pawn in same column as attacking move dest
@@ -405,26 +431,19 @@ class Board
               return 'en_passant'
             end
           end
-#        end
         
-          #        puts "*** move_valid? returning false: pawn attack end_piece == nil: #{end_piece == nil}" if end_piece == nil
           return false if end_piece == nil
-          #        puts "*** move_valid? returning false: pawn attack color == end piece color: #{start_piece.color == end_piece.color}" if start_piece.color == end_piece.color
           puts ""
         return false if start_piece.color == end_piece.color
-#        else
-#          # check that pawn destination empty
-#          # (probably unnecessary check since valid_path check above should cover this)
-#          #        puts "*** move_valid? returning false: pawn end piece != nil: #{end_piece != nil}" if end_piece != nil
-#          return false if end_piece != nil
         end
       end
 
     
     # ensure king not moving into check
     if start_piece.name == 'King'
-      board = Board.new
-      board.copy(self)
+      #      board = Board.new
+      #      board.copy(self)
+      board = self.clone
       board.move_piece(move)
       if current_player_color == 'white'
         enemy_pieces = board.black_pieces  # enemy from threatened king POV
@@ -449,8 +468,9 @@ class Board
       current_player_king = black_king
     end
     if current_player_king[0].check
-      board = Board.new
-      board.copy(self)
+#      board = Board.new
+      #      board.copy(self)
+      board = self.clone
       board.move_piece(move)
       if current_player_color == 'white'
         enemy_pieces = board.black_pieces  # enemy from threatened king POV
@@ -466,12 +486,13 @@ class Board
       return false if !safe_move
     end
 
+    ################################################
+    # TODO: check that the square the king jumps is
+    #       not in check.
+    ################################################
     # check white king-side castle
     if move == [[4,0],[6,0]] && start_piece.name == 'King' && start_piece.color == 'white'
-#      puts "white king-side castle"
       rook = get_piece_at([7,0])
-#      puts "rook is nil: #{rook == nil}, rook can castle: #{rook.can_castle}"
-#      puts "start piece can castle: #{start_piece.can_castle}"
       if rook != nil && rook.can_castle
         return 'castle' if start_piece.can_castle
       end
@@ -505,8 +526,6 @@ class Board
       return false if position_distance(move) > 1
     end
     
-#    puts "*** move_valid? returning true"
-#    puts ""
     true
   end # def move_valid?(move)
 
@@ -535,6 +554,7 @@ class Board
         return [white_king[0], move]
       end
     }
+    white_king[0].check = false
 
     white_piece_array.each {|el|
       move = [el[1], black_king_pos]
@@ -544,6 +564,7 @@ class Board
         return [black_king[0], move]
       end
     }
+    black_king[0].check = false
 
     nil
   end

@@ -1,0 +1,250 @@
+--- !ruby/object:Board
+board:
+- - !ruby/object:Rook
+    name: Rook
+    color: white
+    can_castle: true
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Rook
+    name: Rook
+    color: black
+    can_castle: true
+- - !ruby/object:Knight
+    name: Knight
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Knight
+    name: Knight
+    color: black
+- - !ruby/object:Bishop
+    name: Bishop
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Bishop
+    name: Bishop
+    color: black
+- - !ruby/object:Queen
+    name: Queen
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Queen
+    name: Queen
+    color: black
+- - !ruby/object:King
+    name: King
+    color: white
+    can_castle: true
+    check: false
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:King
+    name: King
+    color: black
+    can_castle: true
+    check: false
+- - !ruby/object:Bishop
+    name: Bishop
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Bishop
+    name: Bishop
+    color: black
+- - !ruby/object:Knight
+    name: Knight
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Knight
+    name: Knight
+    color: black
+- - !ruby/object:Rook
+    name: Rook
+    color: white
+    can_castle: true
+  - 
+  - 
+  - &1 !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 1
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Rook
+    name: Rook
+    color: black
+    can_castle: true
+display_board:
+- - "\e[32mRk\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mRk\e[0m"
+- - "\e[32mNt\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mNt\e[0m"
+- - "\e[32mBp\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mBp\e[0m"
+- - "\e[32mQn\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mQn\e[0m"
+- - "\e[32mKg\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mKg\e[0m"
+- - "\e[32mBp\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mBp\e[0m"
+- - "\e[32mNt\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mNt\e[0m"
+- - "\e[32mRk\e[0m"
+  - "~~"
+  - "~~"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mRk\e[0m"
+captured: []
+moves:
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 7
+    - 1
+  - - 7
+    - 3
+  piece: *1
+non_pawn_move_count: 0
+piece_display:
+- "  8  |    \e[31mRk\e[0m    |... \e[31mNt\e[0m ...|    \e[31mBp\e[0m    |... \e[31mQn\e[0m
+  ...|    \e[31mKg\e[0m    |... \e[31mBp\e[0m ...|    \e[31mNt\e[0m    |... \e[31mRk\e[0m
+  ...|"
+- "  7  |... \e[31mPn\e[0m ...|    \e[31mPn\e[0m    |... \e[31mPn\e[0m ...|    \e[31mPn\e[0m
+  \   |... \e[31mPn\e[0m ...|    \e[31mPn\e[0m    |... \e[31mPn\e[0m ...|    \e[31mPn\e[0m
+  \   | "
+- "  6  |    ~~    |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~ ...|    ~~
+  \   |... ~~ ...|"
+- "  5  |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~
+  ...|    ~~    | "
+- "  4  |    ~~    |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~ ...|    ~~
+  \   |... \e[32mPn\e[0m ...|"
+- "  3  |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~
+  ...|    ~~    | "
+- "  2  |    \e[32mPn\e[0m    |... \e[32mPn\e[0m ...|    \e[32mPn\e[0m    |... \e[32mPn\e[0m
+  ...|    \e[32mPn\e[0m    |... \e[32mPn\e[0m ...|    \e[32mPn\e[0m    |... ~~ ...|"
+- "  1  |... \e[32mRk\e[0m ...|    \e[32mNt\e[0m    |... \e[32mBp\e[0m ...|    \e[32mQn\e[0m
+  \   |... \e[32mKg\e[0m ...|    \e[32mBp\e[0m    |... \e[32mNt\e[0m ...|    \e[32mRk\e[0m
+  \   | "
+--- black

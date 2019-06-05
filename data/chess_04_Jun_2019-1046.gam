@@ -1,0 +1,409 @@
+--- !ruby/object:Board
+board:
+- - !ruby/object:Rook
+    name: Rook
+    color: white
+    can_castle: true
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - &4 !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 1
+  - 
+  - !ruby/object:Rook
+    name: Rook
+    color: black
+    can_castle: true
+- - !ruby/object:Knight
+    name: Knight
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Knight
+    name: Knight
+    color: black
+- - !ruby/object:Bishop
+    name: Bishop
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Bishop
+    name: Bishop
+    color: black
+- - !ruby/object:Queen
+    name: Queen
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Queen
+    name: Queen
+    color: black
+- - !ruby/object:King
+    name: King
+    color: white
+    can_castle: true
+    check: false
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - &3 !ruby/object:Rook
+    name: Rook
+    color: white
+    can_castle: false
+  - 
+  - 
+  - 
+  - !ruby/object:King
+    name: King
+    color: black
+    can_castle: false
+    check: true
+- - !ruby/object:Bishop
+    name: Bishop
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Bishop
+    name: Bishop
+    color: black
+- - !ruby/object:Knight
+    name: Knight
+    color: white
+  - !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 0
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Knight
+    name: Knight
+    color: black
+- - 
+  - 
+  - 
+  - &1 !ruby/object:Pawn
+    name: Pawn
+    color: white
+    move_count: 1
+  - 
+  - 
+  - !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 0
+  - !ruby/object:Rook
+    name: Rook
+    color: black
+    can_castle: true
+display_board:
+- - "\e[32mRk\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "~~"
+  - "\e[31mRk\e[0m"
+- - "\e[32mNt\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mNt\e[0m"
+- - "\e[32mBp\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mBp\e[0m"
+- - "\e[32mQn\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mQn\e[0m"
+- - "\e[32mKg\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "\e[32mRk\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mKg\e[0m"
+- - "\e[32mBp\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mBp\e[0m"
+- - "\e[32mNt\e[0m"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mNt\e[0m"
+- - "~~"
+  - "~~"
+  - "~~"
+  - "\e[32mPn\e[0m"
+  - "~~"
+  - "~~"
+  - "\e[31mPn\e[0m"
+  - "\e[31mRk\e[0m"
+captured:
+- &2 !ruby/object:Pawn
+  name: Pawn
+  color: black
+  move_count: 2
+moves:
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 7
+    - 1
+  - - 7
+    - 3
+  piece: *1
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 4
+    - 6
+  - - 4
+    - 4
+  piece: *2
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 7
+    - 0
+  - - 7
+    - 2
+  piece: *3
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 4
+    - 4
+  - - 4
+    - 3
+  piece: *2
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 7
+    - 2
+  - - 4
+    - 2
+  piece: *3
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 0
+    - 6
+  - - 0
+    - 5
+  piece: *4
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 4
+    - 2
+  - - 4
+    - 3
+  piece: *3
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 4
+    - 7
+  - - 4
+    - 6
+  piece: !ruby/object:King
+    name: King
+    color: black
+    can_castle: false
+    check: true
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 3
+    - 7
+  - - 4
+    - 6
+  piece: !ruby/object:Queen
+    name: Queen
+    color: black
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 0
+    - 5
+  - - 0
+    - 4
+  piece: !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 2
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 0
+    - 7
+  - - 0
+    - 6
+  piece: !ruby/object:Rook
+    name: Rook
+    color: black
+    can_castle: false
+- !ruby/object:MoveHistoryElement
+  move:
+  - &5
+    - 1
+    - 6
+  - - 1
+    - 4
+  piece: !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 1
+- !ruby/object:MoveHistoryElement
+  move:
+  - *5
+  - - 1
+    - 5
+  piece: !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 1
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 1
+    - 7
+  - - 2
+    - 5
+  piece: !ruby/object:Knight
+    name: Knight
+    color: black
+- !ruby/object:MoveHistoryElement
+  move:
+  - &6
+    - 2
+    - 6
+  - - 2
+    - 4
+  piece: !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 1
+- !ruby/object:MoveHistoryElement
+  move:
+  - *6
+  - - 2
+    - 5
+  piece: !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 1
+- !ruby/object:MoveHistoryElement
+  move:
+  - &7
+    - 3
+    - 6
+  - - 3
+    - 4
+  piece: !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 1
+- !ruby/object:MoveHistoryElement
+  move:
+  - *7
+  - - 3
+    - 5
+  piece: !ruby/object:Pawn
+    name: Pawn
+    color: black
+    move_count: 1
+- !ruby/object:MoveHistoryElement
+  move:
+  - - 3
+    - 7
+  - - 4
+    - 6
+  piece: !ruby/object:Queen
+    name: Queen
+    color: black
+non_pawn_move_count: 1
+piece_display:
+- "  8  |    \e[31mRk\e[0m    |... \e[31mNt\e[0m ...|    \e[31mBp\e[0m    |... \e[31mQn\e[0m
+  ...|    \e[31mKg\e[0m    |... \e[31mBp\e[0m ...|    \e[31mNt\e[0m    |... \e[31mRk\e[0m
+  ...|"
+- "  7  |... ~~ ...|    \e[31mPn\e[0m    |... \e[31mPn\e[0m ...|    \e[31mPn\e[0m
+  \   |... ~~ ...|    \e[31mPn\e[0m    |... \e[31mPn\e[0m ...|    \e[31mPn\e[0m    | "
+- "  6  |    \e[31mPn\e[0m    |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~
+  ...|    ~~    |... ~~ ...|"
+- "  5  |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~
+  ...|    ~~    | "
+- "  4  |    ~~    |... ~~ ...|    ~~    |... ~~ ...|    \e[32mRk\e[0m    |... ~~
+  ...|    ~~    |... \e[32mPn\e[0m ...|"
+- "  3  |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~ ...|    ~~    |... ~~
+  ...|    ~~    | "
+- "  2  |    \e[32mPn\e[0m    |... \e[32mPn\e[0m ...|    \e[32mPn\e[0m    |... \e[32mPn\e[0m
+  ...|    \e[32mPn\e[0m    |... \e[32mPn\e[0m ...|    \e[32mPn\e[0m    |... ~~ ...|"
+- "  1  |... \e[32mRk\e[0m ...|    \e[32mNt\e[0m    |... \e[32mBp\e[0m ...|    \e[32mQn\e[0m
+  \   |... \e[32mKg\e[0m ...|    \e[32mBp\e[0m    |... \e[32mNt\e[0m ...|    ~~    | "
+--- black
